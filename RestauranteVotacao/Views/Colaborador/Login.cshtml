@@ -1,0 +1,22 @@
+﻿@{
+    ViewBag.Title = "Login do Sistema";
+}
+
+<div class="jumbotron">
+    <div class="container">
+        <fieldset class="fieldset" >
+            <legend><b>Credenciais do Colaborador</b></legend>
+            <div class="box">
+                <!-- Método Login dentro da ColaboradorController -->
+                <form id="loginForm" method="post" action="@Url.Action("Login","Colaborador")">
+                    <input id="email" name="email" type="text" placeholder="E-mail" class="fields" />
+                    <input id="senha" name="senha" type="password" placeholder="Senha" class="fields" />
+
+                    <button id="loginFormSubmit" class="btn btn-primary full-width"><span class="glyphicon glyphicon-ok"></span></button>
+                    <!-- Mensagem: Usuário ou Senha incorretos ou não cadastrado. -->
+                    <span style="color: #c83e43; font-size: 19px;">@ViewBag.MensagemErroLogin</span>
+                </form>
+            </div>
+        </fieldset>
+    </div>
+</div>

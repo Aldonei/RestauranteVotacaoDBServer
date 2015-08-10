@@ -1,0 +1,116 @@
+﻿@using RestauranteVotacao.Models
+@model RestauranteVotacao.Models.Votacao
+@{
+    ViewBag.Title = "Votação do dia";
+    <!-- Verifica se o usuário da sessão jã votou. -->
+    var foiVotado = Model.ObterDiaAtual().ColaboradorVotou((Colaborador)Session["colaborador"]);
+    <!-- Esta datas servem para habilitar ou não os imputs da tela. -->
+    var dataVotacao = Model.ObterDiaAtual().DataVotacao;
+    var dataSistema = Model.ObterDiaAtual().DataSistema;
+    <!-- Colaborador da Sessão. -->
+    var colaboradorLogado = (Colaborador)Session["colaborador"];
+    
+    <!-- Desabilita ou habilita os inputs da tela pelo dicionário (disable, disable). -->
+    var htmlAttributes = new Dictionary<string, object>();
+    
+    if (foiVotado || dataVotacao < dataSistema) 
+    { 
+        htmlAttributes.Add("disabled", "disabled");
+    }
+    <!--- Carrega em cada dia da semana as votações recebidas de cada restaurante através do objeto ResultadoVotacao -->
+    var segundaFeira = @Model.ObterResultadoSegundaFeira();
+    var tercaFeira = @Model.ObterResultadoTercaFeira();
+    var quartaFeira = @Model.ObterResultadoQuartaFeira();
+    var quintaFeira = @Model.ObterResultadoQuintaFeira();
+    var sextaFeira = @Model.ObterResultadoSextaFeira();
+}
+
+<div class="jumbotron" style="color: #000000; width: 60rem;">
+    <div class="container">
+        <p style="text-align: left; font-size: 15px; color: #357ebd;"> 
+            <b>Selecione um restaurante para esta
+            @Votacao.ObterDiaVotacao().ToLongDateString()</b></p>
+        
+        <!-- Listagem dos restaurante disponíveis -->
+        <fieldset class="fieldset">
+            <legend><b>Restaurantes Disponíveis</b></legend>
+            <div class="box" style="color:#000000; text-align:left; font-size: 13px;">
+                <!-- Chama o método Votar na VotacaoController. -->
+                <form method="post" action="@Url.Action("Votar", "Votacao")">
+                    <!-- Varre a lista de restaurante do dia e apresenta na tela com um radiobutton ao lado do nome do restaurante. -->
+                    @foreach (Restaurante restaurante in Model.ObterDiaAtual().Restaurantes)
+                    {
+                            <p>
+                            <label>
+                                @Html.RadioButton("restauranteId", restaurante.Id, htmlAttributes)
+                                @restaurante.Nome
+                            </label>
+                            </p>
+                            
+                    }
+                    <!-- Se o colaborador já votou ou a data da votação for menor que a data do sistema, troca o tipo do botão. -->
+                    @if (foiVotado || @dataVotacao < @dataSistema)
+                    {
+                        <button class="btn btn-default full-width" disabled="disabled"><span class="glyphicon glyphicon-remove"></span></button>
+                    }
+                    else
+                    {
+                        <button id="voteSubmitButton" class="btn btn-primary full-width"><span class="glyphicon glyphicon-ok"></span></button>
+                    }  
+                </form>
+            </div>
+        </fieldset>
+
+        <!-- Exibe o nome do restaurante votado e o número de votos recebidos pelos colaboradores. -->
+        <fieldset class="fieldset">
+            <legend><b>Resumo das votações</b></legend>
+            <table class="table" style="font-size:small">
+                <thead>
+                  <tr style="font-size:small; color: #357ebd;">
+                    <th>Dia</th>
+                    <th>Restaurante</th>
+                    <th>Votos</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="success">
+                    <td>Segunda-feira</td>
+                    <td>@segundaFeira.NomeRestaurante</td>
+                    <td>@segundaFeira.QuantidadeVotos</td>
+                  </tr>
+                  <tr class="danger">
+                    <td>Terça-feira</td>
+                    <td>@tercaFeira.NomeRestaurante</td>
+                    <td>@tercaFeira.QuantidadeVotos</td>
+                  </tr>
+                  <tr class="info">
+                    <td>Quarta-feira</td>
+                    <td>@quartaFeira.NomeRestaurante</td>
+                    <td>@quartaFeira.QuantidadeVotos</td>
+                  </tr>
+                  <tr class="warning">
+                    <td>Quinta-feira</td>
+                    <td>@quintaFeira.NomeRestaurante</td>
+                    <td>@quintaFeira.QuantidadeVotos</td>
+                  </tr>
+                  <tr class="active">
+                    <td>Sexta-feira</td>
+                    <td>@sextaFeira.NomeRestaurante</td>
+                    <td>@sextaFeira.QuantidadeVotos</td>
+                  </tr>
+                </tbody>
+              </table>
+            <!-- Exibe o colaborador logado -->
+            <p style="text-align: left; font-size: 15px; color: #357ebd;">
+                <b>@colaboradorLogado.Nome</b>
+            </p>
+        </fieldset>
+        <!-- Botões de Navegação para o dia anterior e o próximo. -->
+        <p style="text-align: right; font-size: 15px;">
+            @Html.ActionLink(" ", "DiaAnterior", null, new { @class = "btn btn-warning glyphicon glyphicon-arrow-left" })
+            @Html.ActionLink(" ", "ProximoDia", null, new { @class = "btn btn-warning glyphicon glyphicon-arrow-right"})
+        </p>
+
+        
+    </div>
+</div>
